@@ -1,0 +1,9 @@
+TESTE,COMPARACAO,ESTATISTICA,P_VALOR,DIFERENCA_PP,IC95_INF,IC95_SUP
+Levene (Brown-Forsythe),Todas as redes,977.99,0.0,,,
+ANOVA de Welch,Todas as redes,5999.23,0.0,,,
+Games-Howell,Federal - Privada,9.95,2.7815083569748822e-11,-2.01,-2.74,-1.27
+Games-Howell,Federal - Municipal,13.85,1.6764367671839864e-14,6.58,4.83,8.33
+Games-Howell,Federal - Estadual,54.03,0.0,10.41,9.71,11.11
+Games-Howell,Privada - Municipal,19.53,0.0,8.59,6.96,10.22
+Games-Howell,Privada - Estadual,184.09,0.0,12.42,12.17,12.66
+Games-Howell,Municipal - Estadual,8.78,9.212117313417423e-8,3.83,2.21,5.44

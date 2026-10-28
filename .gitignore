@@ -1,0 +1,37 @@
+# Ambientes virtuais e cache do Python
+.venv/
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Arquivos de sistema operacional e editores (macOS / VS Code / PyCharm)
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# Bases de dados brutas (2.2 GB), rascunhos e Parquets processados
+data/raw/*
+!data/raw/.gitkeep
+data/Outros/
+data/processed/
+
+# Caso deseje versionar apenas as 4 bases analíticas finais (~7.7 MB),
+# descomente as linhas abaixo e troque "data/processed/" por "data/processed/*":
+# !data/processed/indicadores/
+# data/processed/indicadores/*
+# !data/processed/indicadores/indicadores_ensino_medio_2024.parquet
+# !data/processed/enem/
+# data/processed/enem/*
+# !data/processed/enem/itens_cn_2024.parquet
+# !data/processed/enem/enem_escolas_2024.parquet
+# !data/processed/enem/enem_itens_desempenho_2024.parquet

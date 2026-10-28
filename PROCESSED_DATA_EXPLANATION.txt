@@ -1,0 +1,98 @@
+================================================================================
+RELATÓRIO EXPLICATIVO DOS DADOS PROCESSADOS (data/processed/)
+Projeto: TCC Polars - Ensino de Física no ENEM 2024 e Indicadores INEP
+Data: Outubro/2026
+================================================================================
+
+1. VISÃO GERAL DA ARQUITETURA DE DADOS PROCESSADOS
+--------------------------------------------------------------------------------
+A pasta `data/processed/` está organizada em dois domínios temáticos, sem arquivos
+duplicados, gerados pelos notebooks numerados em `src/` (`01` a `04`):
+
+A) data/processed/indicadores/ (Censo Escolar 2024, SAEB/INSE e Adequação UF)
+   - data_afd.parquet                         (176.267 linhas x 44 cols)
+   - data_atu.parquet                         (172.871 linhas x 31 cols)
+   - data_dsu.parquet                         (178.997 linhas x 19 cols)
+   - data_tdi.parquet                         (127.929 linhas x 26 cols)
+   - data_inse.parquet                        ( 69.756 linhas x 22 cols)
+   - data_adequacao_uf.parquet                (     29 linhas x  4 cols)
+   - indicadores_ensino_medio_2024.parquet    (176.267 linhas x 41 cols) -> MESTRE
+
+B) data/processed/enem/ (Microdados ENEM 2024 + Classificação de Física/Quím/Bio)
+   - itens_cn_2024.parquet                    (  1.350 linhas x 19 cols) -> CATÁLOGO
+   - enem_escolas_2024.parquet                ( 29.400 linhas x 45 cols) -> MESTRE
+   - enem_itens_desempenho_2024.parquet       (  4.320 linhas x 28 cols) -> ITENS
+
+
+2. DETALHAMENTO DAS BASES ANALÍTICAS PRINCIPAIS
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+2.1 indicadores/indicadores_ensino_medio_2024.parquet (176.267 escolas, 41 cols)
+--------------------------------------------------------------------------------
+Unifica todas as variáveis de contexto escolar do Ensino Médio por `CO_ENTIDADE`:
+- Cadastro e Geografia (9 colunas):
+  `NU_ANO_CENSO`, `NO_REGIAO`, `SG_UF`, `CO_MUNICIPIO`, `NO_MUNICIPIO`,
+  `CO_ENTIDADE`, `NO_ENTIDADE`, `NO_CATEGORIA` (Urbana/Rural),
+  `NO_DEPENDENCIA` (Federal, Estadual, Municipal, Privada).
+- AFD - Adequação da Formação Docente no Ensino Médio (5 colunas):
+  `AFD_MED_CAT_1` (% de docentes com licenciatura na disciplina que lecionam)
+  até `AFD_MED_CAT_5` (% sem curso superior).
+- ATU - Média de Alunos por Turma no Ensino Médio (4 colunas):
+  `ATU_MED_TOTAL`, `ATU_MED_1ANO`, `ATU_MED_2ANO`, `ATU_MED_3ANO`.
+- DSU - Docentes com Curso Superior no Ensino Médio (1 coluna):
+  `DSU_MED_DOC_SUPERIOR`.
+- TDI - Taxa de Distorção Idade-Série no Ensino Médio (4 colunas):
+  `TDI_MED_TOTAL`, `TDI_MED_1ANO`, `TDI_MED_2ANO`, `TDI_MED_3ANO`.
+- INSE - Nível Socioeconômico da Escola (15 colunas):
+  `NU_ANO_SAEB`, `TP_TIPO_REDE`, `TP_LOCALIZACAO`, `TP_CAPITAL` (1=Capital,
+  2=Interior), `QTD_ALUNOS_INSE`, `MEDIA_INSE`, `INSE_CLASSIFICACAO` e os
+  percentuais por estrato socioeconômico `PC_NIVEL_1` a `PC_NIVEL_8`.
+- Adequação Disciplinar por UF (3 colunas):
+  `TX_INADEQUACAO_FISICA`, `TX_INADEQUACAO_QUIMICA`, `TX_INADEQUACAO_BIOLOGIA`.
+
+--------------------------------------------------------------------------------
+2.2 enem/itens_cn_2024.parquet (1.350 linhas, 19 cols)
+--------------------------------------------------------------------------------
+Catálogo completo das questões de Ciências da Natureza em todos os cadernos de
+prova do ENEM 2024:
+- Cruza as planilhas de provas (`Amarela`, `Azul`, `Verde`) com `ITENS_PROVA_2024.csv`
+  pelo identificador único `CO_ITEM`, propagando as flags `IN_FISICA` (17 itens),
+  `IN_BIOLOGIA` (18 itens) e `IN_QUIMICA` (10 itens) também para o caderno
+  `Cinza` (1422) e provas adaptadas.
+- Preserva os parâmetros da TRI (`NU_PARAM_A` discriminação, `NU_PARAM_B`
+  dificuldade, `NU_PARAM_C` chute), gabarito (`TX_GABARITO`), habilidade da
+  Matriz (`CO_HABILIDADE`) e flag de anulação (`IN_ITEM_ABAN`).
+
+--------------------------------------------------------------------------------
+2.3 enem/enem_escolas_2024.parquet (29.400 escolas, 45 cols)
+--------------------------------------------------------------------------------
+Agregação de `RESULTADOS_2024.csv` por escola (`CO_ESCOLA`):
+- Participação e Abstenção:
+  `QTD_INSCRITOS_ESCOLA`, `QTD_PRESENTES_DIA1`, `QTD_PRESENTES_DIA2`,
+  `QTD_PRESENTES_AMBOS`, `TX_ABSTENCAO_DIA2` e `IN_MIN_10_ALUNOS`.
+- Desempenho Específico em Física, Química e Biologia (extraído da correção
+  item a item de `TX_RESPOSTAS_CN` nos itens válidos):
+  * `MEDIA_ACERTOS_FISICA` (de 16 itens válidos), `PCT_ACERTO_FISICA`, `STD_ACERTOS_FISICA`
+  * `MEDIA_ACERTOS_QUIMICA` (de 10 itens válidos), `PCT_ACERTO_QUIMICA`, `STD_ACERTOS_QUIMICA`
+  * `MEDIA_ACERTOS_BIOLOGIA` (de 18 itens válidos), `PCT_ACERTO_BIOLOGIA`, `STD_ACERTOS_BIOLOGIA`
+- Notas TRI e Redação:
+  Médias, medianas e desvios-padrão de `CN`, `MT`, `CH`, `LC`, `REDACAO`,
+  competências `MEDIA_COMP1` a `MEDIA_COMP5` e `MEDIA_GERAL`.
+
+--------------------------------------------------------------------------------
+2.4 enem/enem_itens_desempenho_2024.parquet (4.320 linhas, 28 cols)
+--------------------------------------------------------------------------------
+Estatísticas de resposta por questão canônica (`CO_ITEM`), estratificadas por
+Unidade Federativa (`SG_UF_ESC`) e Dependência Administrativa (`TP_DEPENDENCIA_ADM_ESC`):
+- Contém `QTD_RESPOSTAS`, `QTD_ACERTOS`, `PCT_ACERTO`.
+- Contagem e percentual de escolha de cada alternativa (`PCT_A` a `PCT_E`,
+  branco e dupla marcação), permitindo analisar distratores e concepções
+  alternativas nas questões de Física.
+
+
+3. COMO CRUZAR AS BASES NOS ESTUDOS DO TCC
+--------------------------------------------------------------------------------
+Para análises no nível da escola (25.144 escolas pareadas entre Censo e ENEM):
+  indicadores.join(enem_escolas, left_on="CO_ENTIDADE", right_on="CO_ESCOLA")
+================================================================================
